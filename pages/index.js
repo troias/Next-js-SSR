@@ -1,11 +1,31 @@
 function HomePage(props) {
+  console.log("props", props)
   return (
     <ul>
-      <li>Product 1</li>
+      {/* {props.products.map(product =>
+        <li>{product.title}</li>
+      )} */}
+
       <li>Product 2</li>
       <li>Product 3</li>
     </ul>
   );
 }
 
-export default HomePage;
+export const getStaticProps = async (ctx) => {
+
+  const req = await fetch("/dummy-backend.json")
+  const res = await req
+ 
+  console.log("ctx", req)
+  console.log("ctx", res)
+  return {
+    props: {
+      products: res
+    }
+
+  }
+}
+
+
+export default HomePage

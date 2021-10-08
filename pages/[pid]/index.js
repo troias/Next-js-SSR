@@ -1,42 +1,70 @@
 import React from 'react'
-import fs from 'fs/promises'
-import path from 'path'
+import {useRouter} from 'next/router'
 
+import { getData } from '../../auxFunctions/getData'
 const ProductDetailPage = (props) => {
+    const router =useRouter()
     console.log("ProductDetailPage", props)
+
+    if (!props.productDetail) {
+        return <p>Loading</p>
+    }
+
     return (
         <div>
-           <h1>{props.productDetail.title}</h1> 
-           <p>{props.productDetail.desription}</p>
+            <h1>{props.productDetail.title}</h1>
+            <p>{props.productDetail.description}</p>
+            <btn onClick={() => { router.push("/") }} style={{
+                backgroundColor: "blue", color: "white"
+            }}> Back</btn>
         </div>
     )
 }
 
-export const getStaticPaths = async () => {
+
+
+export const getStaticPaths = async (ctx) => {
+
+
+    const data = await getData()
+
+    // data.products.map(x => ({
+    //     params: {
+    //         pid: x.id
+    //     }
+    // }))
+
+    const ids = data.products.map(product => product.id)
+    const params = ids.map(id => ({ params: { pid: id } }))
+
     return {
-        paths: [
-          { params: { pid: 'p1' } },
-          { params: { pid: 'p2' } },
-          { params: { pid: 'p3' } }
-        ], fallback: false,
+        paths: params, fallback: true,
     }
+
+    // [
+    //     { params: { pid: 'p1' } },
+    //     { params: { pid: 'p2' } },
+    //     { params: { pid: 'p3' } }
+    //   ]
 }
 
 export const getStaticProps = async (ctx) => {
+
     const productId = ctx.params.pid
-    console.log("ProductDetailPageCtx", productId)
-    const filePath = path.join(process.cwd(), "dummy-backend.json")
-    const req = await fs.readFile(filePath)
-    const data = JSON.parse(req)
+    const data = await getData()
     const product = data.products.find(x => x.id === productId)
-    console.log("product", product)
+
+    if (!product) {
+        return { notFound: true }
+    }
+
     return {
         props: {
-            productDetail: {
-                title: product.title,
-                desription: product.description,
-            }
+            productDetail: product
         }
     }
 }
-export  default ProductDetailPage
+
+
+
+export default ProductDetailPage

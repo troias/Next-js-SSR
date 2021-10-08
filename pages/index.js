@@ -1,27 +1,64 @@
-import fs from 'fs/promises'
-import path from 'path'
-import { useRouter } from 'next/router'
 import Link from 'next/link'
+import { useEffect, useState } from "react"
+import { getData } from '../auxFunctions/getData'
+
 
 function HomePage(props) {
-  console.log("props", props)
+
+  const [products, setProducts] = useState([])
+
+  const fetchInitialData = async () => {
+    const req = await fetch('/dummy-backend.json')
+    const res = await req.json()
+    console.log("res", res.products)
+    // const filteredData = res.filter(x => x.id === 1)
+    setProducts(res.products)
+  }
+  
+  useEffect(() => {
+ 
+    fetchInitialData()
+  }, [])
+
+  if (!props.products) {
+    return <p>Loading</p>
+  }
+
   return (
-    <ul>
-      {props.products.map(product =>
-      <Link href={product.id}>
-        <li key={product.id}>{product.title}</li>
+    <>
+      <ul>
+        <div>
+          <h1>Loaded with useEffect</h1>
+          {products.map((product => <li key={product.id}>{product.title} </li>))}
+        </div>
+        <br/>
+        break 
+       
+        {props.products.map(product =>
+          <Link href={product.id} style={{
+
+          }}>
+            <li key={product.id} style={{
+              textDecoration: "underline",
+              cursor: "grab"
+            }}>{product.title}</li>
+          </Link>
+
+        )}
+      </ul>
+      <Link href="/users">
+        <h1>users </h1>
       </Link>
-      )}
-    </ul>
+
+    </>
+
+
   );
 }
 
 export const getStaticProps = async (ctx) => {
-  console.log("regenerating")
-  console.log("ctx", ctx)
-  const filePath = path.join(process.cwd(), "dummy-backend.json")
-  const req = await fs.readFile(filePath)
-  const data = JSON.parse(req)
+
+  const data = await getData()
 
   // if (data.products.length > 0) {
   //   return {

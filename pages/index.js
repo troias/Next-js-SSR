@@ -49,6 +49,9 @@ function HomePage(props) {
       <Link href="/users">
         <h1>users </h1>
       </Link>
+      <Link href="/last-sales">
+        <h1>Sales </h1>
+      </Link>
 
     </>
 
